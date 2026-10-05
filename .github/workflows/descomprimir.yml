@@ -1,0 +1,21 @@
+name: Descomprimir
+on:
+  workflow_dispatch:
+  push:
+    paths: ['staff-web.zip']
+permissions:
+  contents: write
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          unzip -o staff-web.zip
+          cp -a staff-web/. .
+          rm -rf staff-web staff-web.zip
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -m "Agregar proyecto"
+          git push
