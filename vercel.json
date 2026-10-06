@@ -1,4 +1,3 @@
 {
-  "outputDirectory": "public",
-  "rewrites": [{ "source": "/auth/:action", "destination": "/api/auth?action=:action" }]
+  "outputDirectory": "public"
 }

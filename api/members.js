@@ -4,14 +4,6 @@ module.exports = async (req, res) => {
   if (!me) return res.status(401).json({});
   const d = await db(), M = d.collection('members'), b = req.body || {};
   if (req.method === 'GET') return res.json({ me, members: me.role === 'Administrador' ? await M.find().toArray() : [] });
-  if (b.action === 'request') {
-    if (me.status === 'activo') return res.json({ ok: 1 });
-    const badge = String(b.badge || '').trim().slice(0, 20);
-    if (!badge || !ROLES.includes(b.cargo)) return res.status(400).json({});
-    await M.updateOne({ _id: me._id }, { $set: { badge, cargo: b.cargo, status: 'pendiente' } });
-    await log(d, `${me.user} (${badge}) solicitó acceso como ${b.cargo}`);
-    return res.json({ ok: 1 });
-  }
   if (me.role !== 'Administrador') return res.status(403).json({});
   const t = await M.findOne({ _id: String(b.id) });
   if (!t) return res.status(404).json({});

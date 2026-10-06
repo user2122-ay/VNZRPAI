@@ -21,28 +21,26 @@ const canSee = t => isAll() || (t === 'staff' && me.role === 'Asuntos Disciplina
 const canMng = t => isAdm() || me.role === (t === 'staff' ? 'Asuntos Disciplinarios' : 'Asuntos Internos');
 const opts = (l, s) => l.map(x => `<option${x === s ? ' selected' : ''}>${x}</option>`).join('');
 const val = i => $('#' + i).value.trim();
-const avatar = () => me.avatar ? `https://cdn.discordapp.com/avatars/${me._id}/${me.avatar}.png?size=64` : '';
+const avatar = () => '';
 
-function landing() {
-  $('#app').innerHTML = `<main class="hero"><div class="flag"></div><h1>Asuntos Internos y Administrativos</h1><p>Panel interno del Staff de Venezuela Community. Entra con tu cuenta de Discord para continuar.</p><a class="btn pri" href="/auth/login">Entrar con Discord</a></main>`;
+let lm = 'in';
+function landing(m) {
+  const r = lm === 'req';
+  $('#app').innerHTML = `<main class="hero"><div class="flag"></div><h1>Asuntos Internos y Administrativos</h1><p>Panel interno del Staff de Venezuela Community. ${r ? 'Pide acceso con tu usuario de Discord y tu placa.' : 'Entra con tu usuario de Discord y tu placa.'}</p><label>Usuario de Discord<input id="lu" autocapitalize="none" autocomplete="username" placeholder="usuario"></label><label>Placa<input id="lb" placeholder="AI-02" onkeydown="if(event.key==='Enter')sendLogin()"></label>${r ? `<label>Cargo<select id="lc">${opts(AREAS)}</select></label>` : ''}<p class="${m && m.ok ? 'okm' : 'err'}" id="le">${E((m && m.t) || '')}</p><button class="btn pri" onclick="sendLogin()">${r ? 'Enviar solicitud' : 'Entrar'}</button><button class="btn" onclick="lm='${r ? 'in' : 'req'}';landing()">${r ? 'Ya tengo acceso' : 'Solicitar acceso'}</button></main>`;
 }
-function access() {
-  const p = me.status === 'pendiente';
-  $('#app').innerHTML = `<main class="hero"><div class="flag"></div><h1>${p ? 'Solicitud en revisión' : 'Solicita tu acceso'}</h1>` + (p
-    ? `<p>Un administrador revisará tu solicitud y te asignará un rol. Vuelve a entrar más tarde.</p><a class="btn" href="/auth/logout">Salir</a>`
-    : `<p>Indica tu placa y el cargo que ocupas. Un administrador te dará acceso.</p><label>Placa<input id="rb" placeholder="AI-02"></label><label>Cargo<select id="rc">${opts(AREAS)}</select></label><p class="err" id="re"></p><button class="btn pri" onclick="reqAccess()">Enviar solicitud</button>`) + '</main>';
-}
-async function reqAccess() {
-  const badge = val('rb');
-  if (!badge) { $('#re').textContent = 'Escribe tu placa.'; return; }
-  await api('/api/members', { action: 'request', badge, cargo: val('rc') });
-  boot();
+async function sendLogin() {
+  const user = val('lu'), badge = val('lb'), req = lm === 'req';
+  if (!user || !badge) { $('#le').textContent = 'Escribe tu usuario de Discord y tu placa.'; return; }
+  const r = await fetch('/api/auth?action=' + (req ? 'request' : 'login'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, badge, cargo: req ? val('lc') : undefined }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.ok && !req) return boot();
+  if (r.ok) { lm = 'in'; return landing({ ok: 1, t: 'Solicitud enviada. Cuando te acepten, entra con tu usuario y tu placa.' }); }
+  $('#le').textContent = j.e || 'Error. Intenta de nuevo.';
 }
 async function boot() {
   const r = await api('/api/members');
   if (!r) return landing();
   me = r.me; members = r.members || [];
-  if (me.status !== 'activo') return access();
   lt = canSee('staff') ? 'staff' : 'miembro';
   cases = await api('/api/cases') || [];
   go('inicio');
@@ -59,7 +57,7 @@ function render() {
   const T = [['inicio', 'Inicio'], ['casos', 'Casos'], ['lista', 'Lista negra'], ['chat', 'Chat']];
   if (isAdm()) T.push(['admin', 'Admin']);
   const v = { inicio: vInicio, casos: vCasos, lista: vLista, chat: vChat, admin: vAdmin }[tab]();
-  $('#app').innerHTML = `<header class="top"><div><b>VE:RP</b><span>Asuntos Internos y Administrativos</span></div><div class="who"><div><p>${E(me.nick)}</p><small>${E(me.badge || '')} · ${E(me.role)}</small></div>${avatar() ? `<img src="${avatar()}" alt="">` : ''}</div></header><main class="wrap">${v}</main><nav class="nav">${T.map(x => `<button class="${tab === x[0] ? 'on' : ''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')}</nav>`;
+  $('#app').innerHTML = `<header class="top"><div><b>VE:RP</b><span>Asuntos Internos y Administrativos</span></div><div class="who"><div><p>${E(me.nick)}</p><small>${E(me.badge || '')} · ${E(me.role)}</small></div><a class="btn" href="/api/auth?action=logout" style="margin-left:10px">Salir</a></div></header><main class="wrap">${v}</main><nav class="nav">${T.map(x => `<button class="${tab === x[0] ? 'on' : ''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')}</nav>`;
 }
 function vInicio() {
   const n = cases.filter(c => c.est === 'En investigación').length;
