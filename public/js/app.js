@@ -23,10 +23,11 @@ const opts = (l, s) => l.map(x => `<option${x === s ? ' selected' : ''}>${x}</op
 const val = i => $('#' + i).value.trim();
 const avatar = () => '';
 
+const toggleTheme = () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('t', t); } catch (e) {} };
 let lm = 'in';
 function landing(m) {
   const r = lm === 'req';
-  $('#app').innerHTML = `<main class="hero"><div class="flag"></div><h1>Asuntos Internos y Administrativos</h1><p>Panel interno del Staff de Venezuela Community. ${r ? 'Pide acceso con tu usuario de Discord y tu placa.' : 'Entra con tu usuario de Discord y tu placa.'}</p><label>Usuario de Discord<input id="lu" autocapitalize="none" autocomplete="username" placeholder="usuario"></label><label>Placa<input id="lb" placeholder="AI-02" onkeydown="if(event.key==='Enter')sendLogin()"></label>${r ? `<label>Cargo<select id="lc">${opts(AREAS)}</select></label>` : ''}<p class="${m && m.ok ? 'okm' : 'err'}" id="le">${E((m && m.t) || '')}</p><button class="btn pri" onclick="sendLogin()">${r ? 'Enviar solicitud' : 'Entrar'}</button><button class="btn" onclick="lm='${r ? 'in' : 'req'}';landing()">${r ? 'Ya tengo acceso' : 'Solicitar acceso'}</button></main>`;
+  $('#app').innerHTML = `<main class="hero"><button class="btn ico tg" onclick="toggleTheme()" aria-label="Cambiar tema">🌓</button><img class="logo" src="/img/logo.png" alt="VE"><h1>Asuntos Internos y Administrativos</h1><p>Panel interno del Staff de Venezuela Community. ${r ? 'Pide acceso con tu usuario de Discord y tu placa.' : 'Entra con tu usuario de Discord y tu placa.'}</p><label>Usuario de Discord<input id="lu" autocapitalize="none" autocomplete="username" placeholder="usuario"></label><label>Placa<input id="lb" placeholder="AI-02" onkeydown="if(event.key==='Enter')sendLogin()"></label>${r ? `<label>Cargo<select id="lc">${opts(AREAS)}</select></label>` : ''}<p class="${m && m.ok ? 'okm' : 'err'}" id="le">${E((m && m.t) || '')}</p><button class="btn pri" onclick="sendLogin()">${r ? 'Enviar solicitud' : 'Entrar'}</button><button class="btn" onclick="lm='${r ? 'in' : 'req'}';landing()">${r ? 'Ya tengo acceso' : 'Solicitar acceso'}</button></main>`;
 }
 async function sendLogin() {
   const user = val('lu'), badge = val('lb'), req = lm === 'req';
@@ -57,7 +58,7 @@ function render() {
   const T = [['inicio', 'Inicio'], ['casos', 'Casos'], ['lista', 'Lista negra'], ['chat', 'Chat']];
   if (isAdm()) T.push(['admin', 'Admin']);
   const v = { inicio: vInicio, casos: vCasos, lista: vLista, chat: vChat, admin: vAdmin }[tab]();
-  $('#app').innerHTML = `<header class="top"><div><b>VE:RP</b><span>Asuntos Internos y Administrativos</span></div><div class="who"><div><p>${E(me.nick)}</p><small>${E(me.badge || '')} · ${E(me.role)}</small></div><a class="btn" href="/api/auth?action=logout" style="margin-left:10px">Salir</a></div></header><main class="wrap">${v}</main><nav class="nav">${T.map(x => `<button class="${tab === x[0] ? 'on' : ''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')}</nav>`;
+  $('#app').innerHTML = `<header class="top"><div><img class="lg" src="/img/logo.png" alt="VE"><div><b>VE:RP</b><span>Asuntos Internos y Administrativos</span></div></div><div class="who"><div><p>${E(me.nick)}</p><small>${E(me.badge || '')} · ${E(me.role)}</small></div><button class="btn ico" onclick="toggleTheme()" aria-label="Cambiar tema" style="margin-left:10px">🌓</button><a class="btn" href="/api/auth?action=logout" style="margin-left:8px">Salir</a></div></header><main class="wrap">${v}</main><nav class="nav">${T.map(x => `<button class="${tab === x[0] ? 'on' : ''}" onclick="go('${x[0]}')">${x[1]}</button>`).join('')}</nav>`;
 }
 function vInicio() {
   const n = cases.filter(c => c.est === 'En investigación').length;
