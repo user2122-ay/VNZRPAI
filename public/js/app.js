@@ -27,6 +27,7 @@ const toggleTheme = () => { const t = document.documentElement.dataset.theme ===
 let lm = 'in';
 function landing(m) {
   const r = lm === 'req';
+  document.body.className = 'out';
   $('#app').innerHTML = `<main class="hero"><button class="btn ico tg" onclick="toggleTheme()" aria-label="Cambiar tema">🌓</button><img class="logo" src="/img/logo.png" alt="VE"><h1>Asuntos Internos y Administrativos</h1><p>Panel interno del Staff de Venezuela Community. ${r ? 'Pide acceso con tu usuario de Discord y tu placa.' : 'Entra con tu usuario de Discord y tu placa.'}</p><label>Usuario de Discord<input id="lu" autocapitalize="none" autocomplete="username" placeholder="usuario"></label><label>Placa<input id="lb" placeholder="AI-02" onkeydown="if(event.key==='Enter')sendLogin()"></label>${r ? `<label>Cargo<select id="lc">${opts(AREAS)}</select></label>` : ''}<p class="${m && m.ok ? 'okm' : 'err'}" id="le">${E((m && m.t) || '')}</p><button class="btn pri" onclick="sendLogin()">${r ? 'Enviar solicitud' : 'Entrar'}</button><button class="btn" onclick="lm='${r ? 'in' : 'req'}';landing()">${r ? 'Ya tengo acceso' : 'Solicitar acceso'}</button></main>`;
 }
 async function sendLogin() {
@@ -55,6 +56,7 @@ async function go(t, s) {
   if (t === 'chat') { loadChat(); timer = setInterval(loadChat, 4000); }
 }
 function render() {
+  document.body.className = '';
   const T = [['inicio', 'Inicio'], ['casos', 'Casos'], ['lista', 'Lista negra'], ['chat', 'Chat']];
   if (isAdm()) T.push(['admin', 'Admin']);
   const v = { inicio: vInicio, casos: vCasos, lista: vLista, chat: vChat, admin: vAdmin }[tab]();
