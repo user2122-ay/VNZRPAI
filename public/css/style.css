@@ -45,11 +45,13 @@ pre{white-space:pre-wrap;font:12px/1.5 ui-monospace,monospace;background:var(--c
 .lg{width:44px;height:auto;margin-right:10px}.top>div:first-child{display:flex;align-items:center}
 :root[data-theme=dark] .top{background:#070c1a}
 @media (min-width:900px){
-body{padding:0 0 0 220px;font-size:15.5px}
+body{padding:0 0 0 220px;font-size:15.5px}body.out{padding:0}
 .top{position:sticky;top:0;z-index:6;margin-left:-220px;padding-left:20px}
-.nav{z-index:5;top:0;bottom:auto;right:auto;width:220px;height:100vh;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:84px 0 0}
-.nav button{text-align:left;padding:14px 24px;border-top:0;border-left:4px solid transparent;margin:0;font-size:15.5px}
+.nav{z-index:5;top:0;bottom:auto;right:auto;width:220px;height:100vh;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:92px 0 0}
+.nav button{flex:none;text-align:left;padding:14px 24px;border-top:0;border-left:4px solid transparent;margin:0;font-size:15.5px}
 .nav button.on{border-left-color:var(--y);background:var(--paper)}
 .wrap{max-width:1000px;padding:28px 32px}.gal{grid-template-columns:repeat(4,1fr)}.msgs{height:60vh}
+.hero .logo{align-self:center;width:200px}.hero .btn{align-self:stretch}
 .hero{max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:6vh auto;min-height:0;padding:36px}
 }
+.err:empty,.okm:empty{display:none}
